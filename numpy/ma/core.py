@@ -21,6 +21,7 @@ Released for unlimited redistribution.
 """
 # pylint: disable-msg=E1002
 import builtins
+import inspect
 import operator
 import warnings
 import textwrap
@@ -122,15 +123,8 @@ def doc_note(initialdoc, note):
     if note is None:
         return initialdoc
 
-    notesplit = re.split(r'\n\s*?Notes\n\s*?-----', initialdoc)
-
-    notedoc = """\
-Notes
-    -----
-    %s""" % note
-
-    if len(notesplit) > 1:
-        notedoc = '\n\n    ' + notedoc + '\n'
+    notesplit = re.split(r'\n\s*?Notes\n\s*?-----', inspect.cleandoc(initialdoc))
+    notedoc = "\n\nNotes\n-----\n%s\n" % inspect.cleandoc(note)
 
     return ''.join(notesplit[:1] + [notedoc] + notesplit[1:])
 
@@ -449,9 +443,9 @@ def _check_fill_value(fill_value, ndtype):
         if isinstance(fill_value, (ndarray, np.void)):
             try:
                 fill_value = np.array(fill_value, copy=False, dtype=ndtype)
-            except ValueError:
+            except ValueError as e:
                 err_msg = "Unable to transform %s to dtype %s"
-                raise ValueError(err_msg % (fill_value, ndtype))
+                raise ValueError(err_msg % (fill_value, ndtype)) from e
         else:
             fill_value = np.asarray(fill_value, dtype=object)
             fill_value = np.array(_recursive_set_fill_value(fill_value, ndtype),
@@ -466,12 +460,12 @@ def _check_fill_value(fill_value, ndtype):
             # Also in case of converting string arrays.
             try:
                 fill_value = np.array(fill_value, copy=False, dtype=ndtype)
-            except (OverflowError, ValueError):
+            except (OverflowError, ValueError) as e:
                 # Raise TypeError instead of OverflowError or ValueError.
                 # OverflowError is seldom used, and the real problem here is
                 # that the passed fill_value is not compatible with the ndtype.
                 err_msg = "Cannot convert fill_value %s to dtype %s"
-                raise TypeError(err_msg % (fill_value, ndtype))
+                raise TypeError(err_msg % (fill_value, ndtype)) from e
     return np.array(fill_value)
 
 
@@ -5395,7 +5389,7 @@ class MaskedArray(ndarray):
 
         See Also
         --------
-        numpy.ndarray.around : corresponding function for ndarrays
+        numpy.ndarray.round : corresponding function for ndarrays
         numpy.around : equivalent function
         """
         result = self._data.round(decimals=decimals, out=out).view(type(self))

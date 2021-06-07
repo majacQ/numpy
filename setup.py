@@ -23,9 +23,13 @@ import os
 import sys
 import subprocess
 import textwrap
+  <<<<<<< maintenance/1.19.x
 import sysconfig
 import warnings
 
+  =======
+import warnings
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 
 if sys.version_info[:2] < (3, 6):
@@ -50,6 +54,7 @@ Programming Language :: Python :: 3 :: Only
 Programming Language :: Python :: Implementation :: CPython
 Topic :: Software Development
 Topic :: Scientific/Engineering
+Typing :: Typed
 Operating System :: Microsoft :: Windows
 Operating System :: POSIX
 Operating System :: Unix
@@ -57,8 +62,13 @@ Operating System :: MacOS
 """
 
 MAJOR               = 1
+  <<<<<<< maintenance/1.19.x
 MINOR               = 19
 MICRO               = 6
+  =======
+MINOR               = 20
+MICRO               = 0
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 ISRELEASED          = False
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
@@ -200,7 +210,10 @@ def check_submodules():
     for line in status.splitlines():
         if line.startswith('-') or line.startswith('+'):
             raise ValueError('Submodule not clean: {}'.format(line))
+  <<<<<<< maintenance/1.19.x
 
+  =======
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 
 class concat_license_files():
@@ -245,20 +258,27 @@ def get_build_overrides():
     """
     from numpy.distutils.command.build_clib import build_clib
     from numpy.distutils.command.build_ext import build_ext
+    from distutils.version import LooseVersion
 
-    def _is_using_gcc(obj):
-        is_gcc = False
-        if obj.compiler.compiler_type == 'unix':
-            cc = sysconfig.get_config_var("CC")
-            if not cc:
-                cc = ""
-            compiler_name = os.path.basename(cc)
-            is_gcc = "gcc" in compiler_name
-        return is_gcc
+    def _needs_gcc_c99_flag(obj):
+        if obj.compiler.compiler_type != 'unix':
+            return False
+
+        cc = obj.compiler.compiler[0]
+        if "gcc" not in cc:
+            return False
+
+        # will print something like '4.2.1\n'
+        out = subprocess.run([cc, '-dumpversion'], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, universal_newlines=True)
+        # -std=c99 is default from this version on
+        if LooseVersion(out.stdout) >= LooseVersion('5.0'):
+            return False
+        return True
 
     class new_build_clib(build_clib):
         def build_a_library(self, build_info, lib_name, libraries):
-            if _is_using_gcc(self):
+            if _needs_gcc_c99_flag(self):
                 args = build_info.get('extra_compiler_args') or []
                 args.append('-std=c99')
                 build_info['extra_compiler_args'] = args
@@ -266,7 +286,7 @@ def get_build_overrides():
 
     class new_build_ext(build_ext):
         def build_extension(self, ext):
-            if _is_using_gcc(self):
+            if _needs_gcc_c99_flag(self):
                 if '-std=c99' not in ext.extra_compile_args:
                     ext.extra_compile_args.append('-std=c99')
             build_ext.build_extension(self, ext)

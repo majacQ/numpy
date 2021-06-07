@@ -220,7 +220,11 @@ cdef np.ndarray int_to_array(object value, object name, object bits, object uint
 
 cdef validate_output_shape(iter_shape, np.ndarray output):
     cdef np.npy_intp *shape
+  <<<<<<< maintenance/1.19.x
     cdef np.npy_intp ndim, i
+  =======
+    cdef ndim, i
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     cdef bint error
     dims = np.PyArray_DIMS(output)
     ndim = np.PyArray_NDIM(output)

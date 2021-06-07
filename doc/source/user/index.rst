@@ -24,3 +24,26 @@ classes contained in the package, see the :ref:`reference`.
    c-info
    tutorials_index
    howtos_index
+  <<<<<<< maintenance/1.19.x
+  =======
+
+
+.. Links to these files are placed directly in the top-level html
+   (doc/source/_templates/indexcontent.html, which appears for the URLs
+   numpy.org/devdocs and numpy.org/doc/XX) and are not in any toctree, so
+   we include them here to avoid a "WARNING: document isn't included in any
+   toctree" message
+
+.. toctree::
+   :hidden:
+
+   explanations_index
+   ../f2py/index
+   ../glossary
+   ../dev/underthehood
+   ../docs/index
+   ../bugs
+   ../release
+   ../doc_conventions
+   ../license
+ >>>>>>> revert-17320-relax-object-dtype-with-ref

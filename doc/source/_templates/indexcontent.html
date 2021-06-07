@@ -1,5 +1,14 @@
-{% extends "defindex.html" %}
-{% block tables %}
+{#
+  Loosely inspired by the deprecated sphinx/themes/basic/defindex.html
+#}
+{%- extends "layout.html" %}
+{% set title = _('Overview') %}
+{% block body %}
+<h1>{{ docstitle|e }}</h1>
+<p>
+  Welcome! This is the documentation for NumPy {{ release|e }}
+  {% if last_updated %}, last updated {{ last_updated|e }}{% endif %}.
+</p>
 <p><strong>For users:</strong></p>
 <table class="contentstable" align="center"><tr>
     <td width="50%">
@@ -47,7 +56,7 @@
       <p class="biglink"><a class="biglink" href="{{ pathto("bugs") }}">Reporting bugs</a></p>
       <p class="biglink"><a class="biglink" href="{{ pathto("release") }}">Release Notes</a></p>
     </td><td width="50%">
-      <p class="biglink"><a class="biglink" href="{{ pathto("about") }}">About NumPy</a></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("doc_conventions") }}">Document conventions</a></p>
       <p class="biglink"><a class="biglink" href="{{ pathto("license") }}">License of NumPy</a></p>
     </td></tr>
   </table>

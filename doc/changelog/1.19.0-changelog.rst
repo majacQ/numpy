@@ -2,7 +2,11 @@
 Contributors
 ============
 
+  <<<<<<< maintenance/1.19.x
 A total of 125 people contributed to this release.  People with a "+" by their
+  =======
+A total of 126 people contributed to this release.  People with a "+" by their
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 names contributed a patch for the first time.
 
 * Alex Henrie
@@ -24,6 +28,10 @@ names contributed a patch for the first time.
 * Chris Barker
 * Chris Holland +
 * Christian Kastner +
+  <<<<<<< maintenance/1.19.x
+  =======
+* Chunlin +
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 * Chunlin Fang +
 * Damien Caliste +
 * Dan Allan

@@ -329,8 +329,13 @@ cdef extern from "numpy/arrayobject.h":
     ctypedef long double  npy_float128
 
     ctypedef struct npy_cfloat:
+  <<<<<<< maintenance/1.19.x
         double real
         double imag
+  =======
+        float real
+        float imag
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
     ctypedef struct npy_cdouble:
         double real
@@ -808,6 +813,32 @@ cdef extern from "numpy/ndarraytypes.h":
         int64_t num
 
 cdef extern from "numpy/arrayscalars.h":
+  <<<<<<< maintenance/1.19.x
+  =======
+
+    # abstract types
+    ctypedef class numpy.generic [object PyObject]:
+        pass
+    ctypedef class numpy.number [object PyObject]:
+        pass
+    ctypedef class numpy.integer [object PyObject]:
+        pass
+    ctypedef class numpy.signedinteger [object PyObject]:
+        pass
+    ctypedef class numpy.unsignedinteger [object PyObject]:
+        pass
+    ctypedef class numpy.inexact [object PyObject]:
+        pass
+    ctypedef class numpy.floating [object PyObject]:
+        pass
+    ctypedef class numpy.complexfloating [object PyObject]:
+        pass
+    ctypedef class numpy.flexible [object PyObject]:
+        pass
+    ctypedef class numpy.character [object PyObject]:
+        pass
+
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     ctypedef struct PyDatetimeScalarObject:
         # PyObject_HEAD
         npy_datetime obval

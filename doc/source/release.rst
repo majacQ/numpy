@@ -5,10 +5,14 @@ Release Notes
 .. toctree::
     :maxdepth: 3
 
+  <<<<<<< maintenance/1.19.x
     1.19.6 <release/1.19.6-notes>
     1.19.5 <release/1.19.5-notes>
     1.19.4 <release/1.19.4-notes>
     1.19.3 <release/1.19.3-notes>
+  =======
+    1.20.0 <release/1.20.0-notes>
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     1.19.2 <release/1.19.2-notes>
     1.19.1 <release/1.19.1-notes>
     1.19.0 <release/1.19.0-notes>
