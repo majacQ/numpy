@@ -50,11 +50,19 @@ PyArray_SetStringFunction(PyObject *op, int repr)
 NPY_NO_EXPORT PyObject *
 array_repr(PyArrayObject *self)
 {
+  <<<<<<< maintenance/1.19.x
+    PyObject *s;
+  =======
     static PyObject *repr = NULL;
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
     if (PyArray_ReprFunction != NULL) {
         return PyObject_CallFunctionObjArgs(PyArray_ReprFunction, self, NULL);
     }
+  <<<<<<< maintenance/1.19.x
+    else {
+        s = PyObject_CallFunctionObjArgs(PyArray_ReprFunction, self, NULL);
+  =======
 
     /*
      * We need to do a delayed import here as initialization on module load
@@ -65,6 +73,7 @@ array_repr(PyArrayObject *self)
         npy_PyErr_SetStringChained(PyExc_RuntimeError,
                 "Unable to configure default ndarray.__repr__");
         return NULL;
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     }
     return PyObject_CallFunctionObjArgs(repr, self, NULL);
 }
@@ -73,11 +82,19 @@ array_repr(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 array_str(PyArrayObject *self)
 {
+  <<<<<<< maintenance/1.19.x
+    PyObject *s;
+  =======
     static PyObject *str = NULL;
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
     if (PyArray_StrFunction != NULL) {
         return PyObject_CallFunctionObjArgs(PyArray_StrFunction, self, NULL);
     }
+  <<<<<<< maintenance/1.19.x
+    else {
+        s = PyObject_CallFunctionObjArgs(PyArray_StrFunction, self, NULL);
+  =======
 
     /*
      * We need to do a delayed import here as initialization on module load leads
@@ -88,6 +105,7 @@ array_str(PyArrayObject *self)
         npy_PyErr_SetStringChained(PyExc_RuntimeError,
                 "Unable to configure default ndarray.__str__");
         return NULL;
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     }
     return PyObject_CallFunctionObjArgs(str, self, NULL);
 }

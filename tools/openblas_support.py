@@ -12,13 +12,20 @@ from tempfile import mkstemp, gettempdir
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 
+  <<<<<<< maintenance/1.19.x
+OPENBLAS_V = '0.3.13'
+OPENBLAS_LONG = 'v0.3.13'
+  =======
 OPENBLAS_V = '0.3.10'
 # Temporary build of OpenBLAS to test a fix for dynamic detection of CPU
 OPENBLAS_LONG = 'v0.3.9-452-g349b722d'
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 BASE_LOC = 'https://anaconda.org/multibuild-wheels-staging/openblas-libs'
 BASEURL = f'{BASE_LOC}/{OPENBLAS_LONG}/download'
 ARCHITECTURES = ['', 'windows', 'darwin', 'aarch64', 'x86_64',
                  'i686', 'ppc64le', 's390x']
+  <<<<<<< maintenance/1.19.x
+  =======
 sha256_vals = {
     "openblas-v0.3.7-527-g79fd006c-win_amd64-gcc_7_1_0.zip":
     "7249d68c02e6b6339e06edfeab1fecddf29ee1e67a3afaa77917c320c43de840",
@@ -89,6 +96,7 @@ sha256_vals = {
 }
 
 
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 IS_32BIT = sys.maxsize < 2**32
 
 
@@ -143,9 +151,13 @@ def download_openblas(target, arch, ilp64, is_32bit):
         typ = 'tar.gz'
     elif arch == 'windows':
         if is_32bit:
+  <<<<<<< maintenance/1.19.x
+            suffix = 'win32-gcc_8_1_0.zip'
+  =======
             suffix = 'win32-gcc_7_1_0.zip'
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
         else:
-            suffix = 'win_amd64-gcc_7_1_0.zip'
+            suffix = 'win_amd64-gcc_8_1_0.zip'
         filename = f'{BASEURL}/openblas{fnsuffix}-{OPENBLAS_LONG}-{suffix}'
         typ = 'zip'
     if not filename:
@@ -164,6 +176,8 @@ def download_openblas(target, arch, ilp64, is_32bit):
     data = response.read()
     # Verify hash
     key = os.path.basename(filename)
+  <<<<<<< maintenance/1.19.x
+  =======
     sha256_returned = hashlib.sha256(data).hexdigest()
     if 0:
         if key not in sha256_vals:
@@ -173,6 +187,7 @@ def download_openblas(target, arch, ilp64, is_32bit):
         if sha256_returned != sha256_expected:
             # print(f'\nkey "{key}" with hash "{sha256_returned}" mismatch\n')
             raise ValueError(f'sha256 hash mismatch for filename {filename}')
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     print("Saving to file", file=sys.stderr)
     with open(target, 'wb') as fid:
         fid.write(data)

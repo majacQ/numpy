@@ -1426,6 +1426,14 @@ arr_add_docstring(PyObject *NPY_UNUSED(dummy), PyObject *args)
     char *docstr;
     #endif
     static char *msg = "already has a different docstring";
+  <<<<<<< maintenance/1.19.x
+    PyObject *tp_dict = PyArrayDescr_Type.tp_dict;
+    PyObject *myobj;
+    static PyTypeObject *PyMemberDescr_TypePtr = NULL;
+    static PyTypeObject *PyGetSetDescr_TypePtr = NULL;
+    static PyTypeObject *PyMethodDescr_TypePtr = NULL;
+  =======
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
     /* Don't add docstrings */
     if (Py_OptimizeFlag > 1) {
@@ -1477,7 +1485,10 @@ arr_add_docstring(PyObject *NPY_UNUSED(dummy), PyObject *args)
         doc_attr = PyObject_GetAttrString(obj, "__doc__");
         if (doc_attr != NULL && doc_attr != Py_None &&
                 (PyUnicode_Compare(doc_attr, str) != 0)) {
+  <<<<<<< maintenance/1.19.x
+  =======
             Py_DECREF(doc_attr);
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
             if (PyErr_Occurred()) {
                 /* error during PyUnicode_Compare */
                 return NULL;

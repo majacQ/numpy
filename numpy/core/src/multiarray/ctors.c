@@ -475,6 +475,16 @@ PyArray_AssignFromCache_Recursive(
      * The maximum depth is special (specifically for objects), but usually
      * unrolled in the sequence branch below.
      */
+  <<<<<<< maintenance/1.19.x
+
+    /* INCREF on entry DECREF on exit */
+    Py_INCREF(s);
+
+    PyObject *seq = NULL;
+
+    if (PyArray_Check(s)) {
+        if (!(PyArray_CheckExact(s))) {
+  =======
     if (NPY_UNLIKELY(depth == ndim)) {
         /*
          * We have reached the maximum depth. We should simply assign to the
@@ -489,6 +499,7 @@ PyArray_AssignFromCache_Recursive(
                                 original_obj);
         }
         if (sequence) {
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
             /*
              * Sanity check which may be removed, the error is raised already
              * in `PyArray_DiscoverDTypeAndShape`.
@@ -520,6 +531,62 @@ PyArray_AssignFromCache_Recursive(
         if (PyArray_CopyInto(self, (PyArrayObject *)obj) < 0) {
             goto fail;
         }
+  <<<<<<< maintenance/1.19.x
+        Py_DECREF(s);
+        return 0;
+    }
+
+    seq = PySequence_Fast(s, "Could not convert object to sequence");
+    if (seq == NULL) {
+        goto fail;
+    }
+    slen = PySequence_Fast_GET_SIZE(seq);
+
+    /*
+     * Either the dimensions match, or the sequence has length 1 and can
+     * be broadcast to the destination.
+     */
+    if (slen != PyArray_DIMS(a)[dim] && slen != 1) {
+        PyErr_Format(PyExc_ValueError,
+                 "cannot copy sequence with size %zd to array axis "
+                 "with dimension %" NPY_INTP_FMT, slen, PyArray_DIMS(a)[dim]);
+        goto fail;
+    }
+
+    /* Broadcast the one element from the sequence to all the outputs */
+    if (slen == 1) {
+        PyObject *o = PySequence_Fast_GET_ITEM(seq, 0);
+        npy_intp alen = PyArray_DIM(a, dim);
+
+        for (i = 0; i < alen; i++) {
+            if ((PyArray_NDIM(a) - dim) > 1) {
+                PyArrayObject * tmp =
+                    (PyArrayObject *)array_item_asarray(dst, i);
+                if (tmp == NULL) {
+                    goto fail;
+                }
+
+                res = setArrayFromSequence(a, o, dim+1, tmp);
+                Py_DECREF(tmp);
+            }
+            else {
+                char * b = (PyArray_BYTES(dst) + i * PyArray_STRIDES(dst)[0]);
+                res = PyArray_SETITEM(dst, b, o);
+            }
+            if (res < 0) {
+                goto fail;
+            }
+        }
+    }
+    /* Copy element by element */
+    else {
+        for (i = 0; i < slen; i++) {
+            PyObject * o = PySequence_Fast_GET_ITEM(seq, i);
+            if ((PyArray_NDIM(a) - dim) > 1) {
+                PyArrayObject * tmp =
+                    (PyArrayObject *)array_item_asarray(dst, i);
+                if (tmp == NULL) {
+  =======
     }
     else {
         assert(depth != ndim);
@@ -546,10 +613,82 @@ PyArray_AssignFromCache_Recursive(
                 char *item;
                 item = (PyArray_BYTES(self) + i * PyArray_STRIDES(self)[0]);
                 if (PyArray_Pack(PyArray_DESCR(self), item, value) < 0) {
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
                     goto fail;
                 }
             }
             else {
+  <<<<<<< maintenance/1.19.x
+                char * b = (PyArray_BYTES(dst) + i * PyArray_STRIDES(dst)[0]);
+                res = PyArray_SETITEM(dst, b, o);
+            }
+            if (res < 0) {
+                goto fail;
+            }
+        }
+    }
+
+    Py_DECREF(seq);
+    Py_DECREF(s);
+    return 0;
+
+ fail:
+    Py_XDECREF(seq);
+    Py_DECREF(s);
+    return res;
+}
+
+NPY_NO_EXPORT int
+PyArray_AssignFromSequence(PyArrayObject *self, PyObject *v)
+{
+    if (!PySequence_Check(v)) {
+        PyErr_SetString(PyExc_ValueError,
+                        "assignment from non-sequence");
+        return -1;
+    }
+    if (PyArray_NDIM(self) == 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "assignment to 0-d array");
+        return -1;
+    }
+    return setArrayFromSequence(self, v, 0, NULL);
+}
+
+/*
+ * The rest of this code is to build the right kind of array
+ * from a python object.
+ */
+
+static int
+discover_itemsize(PyObject *s, int nd, int *itemsize, int string_type)
+{
+    int r;
+    npy_intp n, i;
+
+    if (PyArray_Check(s)) {
+        *itemsize = PyArray_MAX(*itemsize, PyArray_ITEMSIZE((PyArrayObject *)s));
+        return 0;
+    }
+
+    if ((nd == 0) || PyString_Check(s) ||
+            PyMemoryView_Check(s) || PyUnicode_Check(s)) {
+        /* If an object has no length, leave it be */
+        if (string_type && s != NULL &&
+                !PyString_Check(s) && !PyUnicode_Check(s)) {
+            PyObject *s_string = NULL;
+            if (string_type == NPY_STRING) {
+                s_string = PyObject_Str(s);
+            }
+            else {
+                s_string = PyObject_Str(s);
+            }
+            if (s_string) {
+                n = PyObject_Length(s_string);
+                Py_DECREF(s_string);
+            }
+            else {
+                n = -1;
+  =======
                 PyArrayObject *view;
                 view = (PyArrayObject *)array_item_asarray(self, i);
                 if (view < 0) {
@@ -560,6 +699,7 @@ PyArray_AssignFromCache_Recursive(
                     goto fail;
                 }
                 Py_DECREF(view);
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
             }
         }
     }
@@ -582,9 +722,70 @@ PyArray_AssignFromCache_Recursive(
  *        should be handled by `PyArray_FromArray()` before.
  * @return 0 on success -1 on failure.
  */
+  <<<<<<< maintenance/1.19.x
+static int
+discover_dimensions(PyObject *obj, int *maxndim, npy_intp *d, int check_it,
+                                    int stop_at_string, int stop_at_tuple,
+                                    discovered_t *out_is_object)
+{
+    PyObject *e;
+    npy_intp n, i;
+    PyObject * seq;
+
+    if (*maxndim == 0) {
+        return 0;
+    }
+
+    /* obj is an Array */
+    if (PyArray_Check(obj)) {
+        _discover_dimensions_array((PyArrayObject *)obj, maxndim, d);
+        return 0;
+    }
+
+    /* obj is a Scalar */
+    if (PyArray_IsScalar(obj, Generic)) {
+        *maxndim = 0;
+        return 0;
+    }
+
+    /* obj is not a Sequence */
+    if (!PySequence_Check(obj) ||
+            PySequence_Length(obj) < 0) {
+        *maxndim = 0;
+        if (PyErr_Occurred()) {
+            if (PyErr_ExceptionMatches(PyExc_RecursionError) ||
+                    PyErr_ExceptionMatches(PyExc_MemoryError)) {
+                return -1;
+            }
+            PyErr_Clear();
+        }
+        return 0;
+    }
+
+    /* obj is a String */
+    if (PyString_Check(obj) ||
+            PyUnicode_Check(obj)) {
+        if (stop_at_string) {
+            *maxndim = 0;
+        }
+        else {
+            d[0] = PySequence_Length(obj);
+            *maxndim = 1;
+        }
+        return 0;
+    }
+
+    /* obj is a Tuple, but tuples aren't expanded */
+    if (stop_at_tuple && PyTuple_Check(obj)) {
+        *maxndim = 0;
+        return 0;
+    }
+
+  =======
 NPY_NO_EXPORT int
 PyArray_AssignFromCache(PyArrayObject *self, coercion_cache_obj *cache) {
     int ndim = PyArray_NDIM(self);
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     /*
      * Do not support ndim == 0 now with an array in the cache.
      * The ndim == 0 is special because np.array(np.array(0), dtype=object)
@@ -592,8 +793,31 @@ PyArray_AssignFromCache(PyArrayObject *self, coercion_cache_obj *cache) {
      * Since the single-array case is special, it is handled previously
      * in either case.
      */
+  <<<<<<< maintenance/1.19.x
+    e = _array_from_array_like(obj, NULL, NPY_FALSE, NULL);
+    if (e == Py_NotImplemented) {
+        Py_DECREF(e);
+    }
+    else if (e != NULL) {
+        _discover_dimensions_array((PyArrayObject *)e, maxndim, d);
+        Py_DECREF(e);
+        return 0;
+    }
+    else if (PyErr_Occurred()) {
+        /*
+         * Clear all but clearly fatal errors (previously cleared all).
+         * 1.20+ does not clear any errors here.
+         */
+        if (PyErr_ExceptionMatches(PyExc_RecursionError) ||
+                PyErr_ExceptionMatches(PyExc_MemoryError)) {
+            return -1;
+        }
+        PyErr_Clear();
+    }
+  =======
     assert(cache->sequence);
     assert(ndim != 0);  /* guaranteed if cache contains a sequence */
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
     if (PyArray_AssignFromCache_Recursive(self, ndim, &cache) < 0) {
         /* free the remaining cache. */
@@ -616,7 +840,10 @@ PyArray_AssignFromCache(PyArrayObject *self, coercion_cache_obj *cache) {
     return 0;
 }
 
+  <<<<<<< maintenance/1.19.x
+  =======
 
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 static void
 raise_memory_error(int nd, npy_intp const *dims, PyArray_Descr *descr)
 {
@@ -1466,12 +1693,49 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s,
         PyObject *o = PySequence_Fast_GET_ITEM(seq, 0);
         npy_intp alen = PyArray_DIM(a, dim);
 
+  <<<<<<< maintenance/1.19.x
+        /*
+         * Determine the type, using the requested data type if
+         * it will affect how the array is retrieved
+         */
+        if (requested_dtype != NULL && (
+                requested_dtype->type_num == NPY_STRING ||
+                requested_dtype->type_num == NPY_UNICODE ||
+                (requested_dtype->type_num == NPY_VOID &&
+                    (requested_dtype->names || requested_dtype->subarray)) ||
+                requested_dtype->type == NPY_CHARLTR ||
+                requested_dtype->type_num == NPY_OBJECT)) {
+            Py_INCREF(requested_dtype);
+            *out_dtype = requested_dtype;
+        }
+        else {
+            *out_dtype = NULL;
+            if (PyArray_DTypeFromObject(op, NPY_MAXDIMS, out_dtype) < 0) {
+                if (PyErr_ExceptionMatches(PyExc_MemoryError) ||
+                        PyErr_ExceptionMatches(PyExc_RecursionError)) {
+                    return -1;
+                }
+                /* Return NPY_OBJECT for most exceptions */
+                else {
+                    PyErr_Clear();
+                    *out_dtype = PyArray_DescrFromType(NPY_OBJECT);
+                    if (*out_dtype == NULL) {
+                        return -1;
+                    }
+                }
+            }
+            if (*out_dtype == NULL) {
+                *out_dtype = PyArray_DescrFromType(NPY_DEFAULT_TYPE);
+                if (*out_dtype == NULL) {
+                    return -1;
+  =======
         for (i = 0; i < alen; i++) {
             if ((PyArray_NDIM(a) - dim) > 1) {
                 PyArrayObject * tmp =
                     (PyArrayObject *)array_item_asarray(dst, i);
                 if (tmp == NULL) {
                     goto fail;
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
                 }
 
                 res = setArrayFromSequence(a, o, dim+1, tmp);
@@ -1587,6 +1851,38 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                 Py_DECREF(ret);
                 return NULL;
             }
+  <<<<<<< maintenance/1.19.x
+
+            if (ndim > 0) {
+                if (PyArray_AssignFromSequence(ret, op) < 0) {
+                    Py_DECREF(ret);
+                    ret = NULL;
+                }
+            }
+            else {
+                if (PyArray_SETITEM(ret, PyArray_DATA(ret), op) < 0) {
+                    Py_DECREF(ret);
+                    ret = NULL;
+                }
+            }
+        }
+    }
+    else {
+        if (min_depth != 0 && PyArray_NDIM(arr) < min_depth) {
+            PyErr_SetString(PyExc_ValueError,
+                            "object of too small depth for desired array");
+            Py_DECREF(arr);
+            Py_XDECREF(newtype);
+            ret = NULL;
+        }
+        else if (max_depth != 0 && PyArray_NDIM(arr) > max_depth) {
+            PyErr_SetString(PyExc_ValueError,
+                            "object too deep for desired array");
+            Py_DECREF(arr);
+            Py_XDECREF(newtype);
+            ret = NULL;
+  =======
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
         }
         else {
             npy_free_coercion_cache(cache);
@@ -2052,7 +2348,11 @@ _is_default_descr(PyObject *descr, PyObject *typestr) {
     if (!(PyTuple_Check(tuple) && PyTuple_GET_SIZE(tuple) == 2)) {
         return 0;
     }
+  <<<<<<< maintenance/1.19.x
+    name = PyTuple_GET_ITEM(tuple, 0);
+  =======
     PyObject *name = PyTuple_GET_ITEM(tuple, 0);
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     if (!(PyUnicode_Check(name) && PyUnicode_GetLength(name) == 0)) {
         return 0;
     }
@@ -2079,7 +2379,14 @@ PyArray_FromInterface(PyObject *origin)
 
     if (iface == NULL) {
         if (PyErr_Occurred()) {
-            PyErr_Clear(); /* TODO[gh-14801]: propagate crashes during attribute access? */
+            /*
+             * Clear all but clearly fatal errors (previously cleared all).
+             * 1.20+ does not clear any errors here.
+             */
+            if (PyErr_ExceptionMatches(PyExc_RecursionError) ||
+                    PyErr_ExceptionMatches(PyExc_MemoryError)) {
+                return NULL;
+            }
         }
         return Py_NotImplemented;
     }
@@ -2347,7 +2654,15 @@ PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
     array_meth = PyArray_LookupSpecial_OnInstance(op, "__array__");
     if (array_meth == NULL) {
         if (PyErr_Occurred()) {
-            PyErr_Clear(); /* TODO[gh-14801]: propagate crashes during attribute access? */
+            /*
+             * Clear all but clearly fatal errors (previously cleared all).
+             * 1.20+ does not clear any errors here.
+             */
+            if (PyErr_ExceptionMatches(PyExc_RecursionError) ||
+                    PyErr_ExceptionMatches(PyExc_MemoryError)) {
+                return NULL;
+            }
+            PyErr_Clear();
         }
         return Py_NotImplemented;
     }
@@ -3211,7 +3526,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
     return NULL;
 }
 
-/* This array creation function steals the reference to dtype. */
+/* This array creation function does not steal the reference to dtype. */
 static PyArrayObject *
 array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp num, size_t *nread)
 {
@@ -3239,7 +3554,6 @@ array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp num, size_t *nrea
         if (fail) {
             PyErr_SetString(PyExc_IOError,
                             "could not seek in file");
-            Py_DECREF(dtype);
             return NULL;
         }
         num = numbytes / dtype->elsize;
@@ -3251,6 +3565,7 @@ array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp num, size_t *nrea
      */
     elsize = dtype->elsize;
 
+    Py_INCREF(dtype);  /* do not steal the original dtype. */
     r = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, dtype, 1, &num,
                                               NULL, NULL, 0, NULL);
     if (r == NULL) {
@@ -3266,7 +3581,7 @@ array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp num, size_t *nrea
 /*
  * Create an array by reading from the given stream, using the passed
  * next_element and skip_separator functions.
- * As typical for array creation functions, it steals the reference to dtype.
+ * Does not steal the reference to dtype.
  */
 #define FROM_BUFFER_SIZE 4096
 static PyArrayObject *
@@ -3295,7 +3610,6 @@ array_from_text(PyArray_Descr *dtype, npy_intp num, char const *sep, size_t *nre
         PyArray_NewFromDescr(&PyArray_Type, dtype, 1, &size,
                              NULL, NULL, 0, NULL);
     if (r == NULL) {
-        Py_DECREF(dtype);
         return NULL;
     }
 
@@ -3358,7 +3672,6 @@ array_from_text(PyArray_Descr *dtype, npy_intp num, char const *sep, size_t *nre
         if (PyErr_Occurred()) {
             /* If an error is already set (unlikely), do not create new one */
             Py_DECREF(r);
-            Py_DECREF(dtype);
             return NULL;
         }
         /* 2019-09-12, NumPy 1.18 */
@@ -3370,7 +3683,6 @@ array_from_text(PyArray_Descr *dtype, npy_intp num, char const *sep, size_t *nre
     }
 
 fail:
-    Py_DECREF(dtype);
     if (err == 1) {
         PyErr_NoMemory();
     }
@@ -3436,20 +3748,26 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, npy_intp num, char *sep)
                 (skip_separator) fromfile_skip_separator, NULL);
     }
     if (ret == NULL) {
+        Py_DECREF(dtype);
         return NULL;
     }
     if (((npy_intp) nread) < num) {
-        /* Realloc memory for smaller number of elements */
-        const size_t nsize = PyArray_MAX(nread,1)*PyArray_DESCR(ret)->elsize;
+        /*
+         * Realloc memory for smaller number of elements, use original dtype
+         * which may have include a subarray (and is used for `nread`).
+         */
+        const size_t nsize = PyArray_MAX(nread,1) * dtype->elsize;
         char *tmp;
 
-        if((tmp = PyDataMem_RENEW(PyArray_DATA(ret), nsize)) == NULL) {
+        if ((tmp = PyDataMem_RENEW(PyArray_DATA(ret), nsize)) == NULL) {
+            Py_DECREF(dtype);
             Py_DECREF(ret);
             return PyErr_NoMemory();
         }
         ((PyArrayObject_fields *)ret)->data = tmp;
         PyArray_DIMS(ret)[0] = nread;
     }
+    Py_DECREF(dtype);
     return (PyObject *)ret;
 }
 
@@ -3660,6 +3978,7 @@ PyArray_FromString(char *data, npy_intp slen, PyArray_Descr *dtype,
                               (next_element) fromstr_next_element,
                               (skip_separator) fromstr_skip_separator,
                               end);
+        Py_DECREF(dtype);
     }
     return (PyObject *)ret;
 }

@@ -24,6 +24,8 @@ classes contained in the package, see the :ref:`reference`.
    c-info
    tutorials_index
    howtos_index
+  <<<<<<< maintenance/1.19.x
+  =======
 
 
 .. Links to these files are placed directly in the top-level html
@@ -44,3 +46,4 @@ classes contained in the package, see the :ref:`reference`.
    ../release
    ../doc_conventions
    ../license
+ >>>>>>> revert-17320-relax-object-dtype-with-ref

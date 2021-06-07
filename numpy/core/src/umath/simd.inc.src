@@ -253,7 +253,13 @@ static NPY_INLINE int
 run_unary_avx512f_@func@_@TYPE@(char **args, const npy_intp *dimensions, const npy_intp *steps)
 {
 #if defined HAVE_ATTRIBUTE_TARGET_AVX512F_WITH_INTRINSICS && defined NPY_HAVE_SSE2_INTRINSICS
+  <<<<<<< maintenance/1.19.x
+    if ((IS_OUTPUT_BLOCKABLE_UNARY((npy_uint)(@esize@/@outsize@), 64)) &&
+            (labs(steps[0]) < 2*@max_stride@*@esize@) &&
+                ((steps[0] & (@esize@-1)) == 0)) {
+  =======
     if ((IS_OUTPUT_BLOCKABLE_UNARY(@esize@, (npy_uint)(@esize@/@outsize@), 64)) && (labs(steps[0]) < 2*@max_stride@*@esize@)) {
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
         AVX512F_@func@_@TYPE@((@type@*)args[1], (@type@*)args[0], dimensions[0], steps[0]);
         return 1;
     }
@@ -1606,7 +1612,11 @@ fma_get_exponent(__m256 x)
     __m256 denormal_mask = _mm256_cmp_ps(x, _mm256_set1_ps(FLT_MIN), _CMP_LT_OQ);
     __m256 normal_mask = _mm256_cmp_ps(x, _mm256_set1_ps(FLT_MIN), _CMP_GE_OQ);
 
-    __m256 temp1 = _mm256_blendv_ps(x, _mm256_set1_ps(0.0f), normal_mask);
+    /*
+     * It is necessary for temp1 to be volatile, a bug in clang optimizes it out which leads
+     * to an overflow warning in some cases. See https://github.com/numpy/numpy/issues/18005
+     */
+    volatile __m256 temp1 = _mm256_blendv_ps(x, _mm256_set1_ps(0.0f), normal_mask);
     __m256 temp = _mm256_mul_ps(temp1, two_power_100);
     x = _mm256_blendv_ps(x, temp, denormal_mask);
 
@@ -1633,7 +1643,11 @@ fma_get_mantissa(__m256 x)
     __m256 denormal_mask = _mm256_cmp_ps(x, _mm256_set1_ps(FLT_MIN), _CMP_LT_OQ);
     __m256 normal_mask = _mm256_cmp_ps(x, _mm256_set1_ps(FLT_MIN), _CMP_GE_OQ);
 
-    __m256 temp1 = _mm256_blendv_ps(x, _mm256_set1_ps(0.0f), normal_mask);
+    /*
+     * It is necessary for temp1 to be volatile, a bug in clang optimizes it out which leads
+     * to an overflow warning in some cases. See https://github.com/numpy/numpy/issues/18005
+     */
+    volatile __m256 temp1 = _mm256_blendv_ps(x, _mm256_set1_ps(0.0f), normal_mask);
     __m256 temp = _mm256_mul_ps(temp1, two_power_100);
     x = _mm256_blendv_ps(x, temp, denormal_mask);
 
@@ -3583,7 +3597,7 @@ AVX512F_absolute_@TYPE@(@type@ * op,
         ip += 2*@num_lanes@*stride_ip1;
         num_remaining_elements -= 2*@num_lanes@;
     }
-    npy_clear_floatstatus_barrier((char*)op);
+    npy_clear_floatstatus_barrier((char*)&num_remaining_elements);
 }
 
 #endif

@@ -139,7 +139,11 @@ Labeling tests
 Unlabeled tests like the ones above are run in the default
 ``numpy.test()`` run.  If you want to label your test as slow - and
 therefore reserved for a full ``numpy.test(label='full')`` run, you
+  <<<<<<< maintenance/1.19.x
+can label it with a decorator::
+  =======
 can label it with ``pytest.mark.slow``::
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
   import pytest
 

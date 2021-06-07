@@ -51,6 +51,9 @@ jobs:
        - ATLAS=None
 
     - python: 3.7
+  <<<<<<< maintenance/1.19.x
+    - python: 3.9
+  =======
       os: linux
       arch: arm64
       env:
@@ -59,6 +62,7 @@ jobs:
        - ATLAS=None
 
 
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
     - python: 3.6
     - python: 3.7
@@ -119,6 +123,34 @@ jobs:
        - LAPACK=None
        - ATLAS=None
 
+  <<<<<<< maintenance/1.19.x
+    - python: 3.7
+      os: linux
+      arch: ppc64le
+      env:
+       # use OpenBLAS build, not system ATLAS
+       - DOWNLOAD_OPENBLAS=1
+       - ATLAS=None
+
+    - python: 3.7
+      os: linux
+      arch: s390x
+      env:
+       # use OpenBLAS build, not system ATLAS
+       - DOWNLOAD_OPENBLAS=1
+       - NPY_USE_BLAS_ILP64=1
+       - ATLAS=None
+
+    - python: 3.7
+      os: linux
+      arch: arm64
+      env:
+       # use OpenBLAS build, not system ATLAS
+       - DOWNLOAD_OPENBLAS=1
+       - ATLAS=None
+
+  =======
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 
 before_install:

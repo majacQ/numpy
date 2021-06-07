@@ -4,6 +4,8 @@ steps:
     versionSpec: $(PYTHON_VERSION)
     addToPath: true
     architecture: $(PYTHON_ARCH)
+  <<<<<<< maintenance/1.19.x
+  =======
   condition: not(contains(variables['PYTHON_VERSION'], 'PyPy'))
 - powershell: |
     $url = "http://buildbot.pypy.org/nightly/py3.6/pypy-c-jit-latest-win32.zip"
@@ -22,6 +24,7 @@ steps:
     echo "##vso[task.prependpath]$pypypath"
   condition: contains(variables['PYTHON_VERSION'], 'PyPy')
   displayName: "Install PyPy pre-release"
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 - script: python -m pip install --upgrade pip wheel
   displayName: 'Install tools'

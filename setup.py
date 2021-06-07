@@ -23,7 +23,13 @@ import os
 import sys
 import subprocess
 import textwrap
+  <<<<<<< maintenance/1.19.x
+import sysconfig
 import warnings
+
+  =======
+import warnings
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 
 if sys.version_info[:2] < (3, 6):
@@ -56,8 +62,13 @@ Operating System :: MacOS
 """
 
 MAJOR               = 1
+  <<<<<<< maintenance/1.19.x
+MINOR               = 19
+MICRO               = 6
+  =======
 MINOR               = 20
 MICRO               = 0
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 ISRELEASED          = False
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
@@ -199,6 +210,10 @@ def check_submodules():
     for line in status.splitlines():
         if line.startswith('-') or line.startswith('+'):
             raise ValueError('Submodule not clean: {}'.format(line))
+  <<<<<<< maintenance/1.19.x
+
+  =======
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 
 class concat_license_files():

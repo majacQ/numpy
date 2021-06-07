@@ -2489,6 +2489,8 @@ class TestRegression:
         c_arr = np.ctypeslib.as_ctypes(arr)
         assert_equal(c_arr._length_, arr.size)
 
+  <<<<<<< maintenance/1.19.x
+  =======
     def test_complex_conversion_error(self):
         # gh-17068
         with pytest.raises(TypeError, match=r"Unable to convert dtype.*"):
@@ -2502,6 +2504,7 @@ class TestRegression:
         descr = np.array((1, 1), dtype=dt).__array_interface__['descr']
         assert descr == [('', '|V8')]  # instead of [(b'', '|V8')]
 
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
     @pytest.mark.skipif(sys.maxsize < 2 ** 31 + 1, reason='overflows 32-bit python')
     @requires_memory(free_bytes=9e9)
     def test_dot_big_stride(self):
@@ -2514,6 +2517,8 @@ class TestRegression:
         b[...] = 1
         assert b.strides[0] > int32_max * b.dtype.itemsize
         assert np.dot(b, b) == 2.0
+  <<<<<<< maintenance/1.19.x
+  =======
 
     def test_frompyfunc_name(self):
         # name conversion was failing for python 3 strings
@@ -2524,3 +2529,4 @@ class TestRegression:
 
         f = np.frompyfunc(cassé, 1, 1)
         assert str(f) == "<ufunc 'cassé (vectorized)'>"
+  >>>>>>> revert-17320-relax-object-dtype-with-ref

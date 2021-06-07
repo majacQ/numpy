@@ -753,6 +753,8 @@ cdef inline tuple PyDataType_SHAPE(dtype d):
     else:
         return ()
 
+  <<<<<<< maintenance/1.19.x
+  =======
 
 cdef extern from "numpy/ndarrayobject.h":
     PyTypeObject PyTimedeltaArrType_Type
@@ -815,6 +817,7 @@ cdef extern from "numpy/arrayscalars.h":
         NPY_FR_fs
         NPY_FR_as
 
+  >>>>>>> revert-17320-relax-object-dtype-with-ref
 
 #
 # ufunc API
