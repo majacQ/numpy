@@ -1,7 +1,7 @@
 .. _NEP43:
 
 ==============================================================================
-NEP 43 — Enhancing the Extensibility of UFuncs
+NEP 43 — Enhancing the extensibility of UFuncs
 ==============================================================================
 
 :title: Enhancing the Extensibility of UFuncs
@@ -108,7 +108,7 @@ promotion and dispatching.
 
 
 ***********************
-Backwards Compatibility
+Backwards compatibility
 ***********************
 
 The general backwards compatibility issues have also been listed
@@ -295,7 +295,7 @@ are described and motivated in details later. Briefly:
   ``class.method`` is a method, while ``class().method`` returns a "bound" method.
 
 
-Customizing Dispatching and Promotion
+Customizing dispatching and Promotion
 =====================================
 
 Finding the correct implementation when ``np.positive.resolve_impl()`` is
@@ -571,7 +571,7 @@ This stores all of the constant information that is part of the ``Context``,
 such as:
 
 * the ``DTypes``
-* the number of input and ouput arguments
+* the number of input and output arguments
 * the ufunc signature (specific to generalized ufuncs, compare :ref:`NEP20`).
 
 Fortunately, most users and even ufunc implementers will not have to worry
@@ -584,7 +584,7 @@ fast C-functions and NumPy API creates the new ``ArrayMethod`` or
 
 .. _ArrayMethod_specs:
 
-ArrayMethod Specifications
+ArrayMethod specifications
 ==========================
 
 .. highlight:: c
@@ -804,7 +804,7 @@ the inner-loop operates on.
 This is necessary information for parametric dtypes since for example comparing
 two strings requires knowing the length of both strings.
 The ``Context`` can also hold potentially useful information such as the
-the original ``ufunc``, which can be helpful when reporting errors.
+original ``ufunc``, which can be helpful when reporting errors.
 
 In principle passing in Context is not necessary, as all information could be
 included in ``innerloop_data`` and set up in the ``get_loop`` function.
@@ -833,7 +833,7 @@ feature in NumPy. The error handling is further complicated by the way
 CPUs signal floating point errors.
 Both are discussed in the next section.
 
-Error Handling
+Error handling
 """"""""""""""
 
 .. highlight:: c
@@ -921,7 +921,7 @@ the ``context`` in principle.
 
 .. highlight:: python
 
-Reusing existing Loops/Implementations
+Reusing existing loops/implementations
 ======================================
 
 For many DTypes the above definition for adding additional C-level loops will be
@@ -948,7 +948,7 @@ This wrapped ``ArrayMethod`` will have two additional methods:
   convert this to ``float64 + float64``.
 
 * ``wrap_outputs(Tuple[DType]: input_descr) -> Tuple[DType]`` replacing the
-  resolved descriptors with with the desired actual loop descriptors.
+  resolved descriptors with the desired actual loop descriptors.
   The original ``resolve_descriptors`` function will be called between these
   two calls, so that the output descriptors may not be set in the first call.
   In the above example it will use the ``float64`` as returned (which might
@@ -987,8 +987,8 @@ A different use-case is that of a ``Unit(float64, "m")`` DType, where
 the numerical type is part of the DType parameter.
 This approach is possible, but will require a custom ``ArrayMethod``
 which wraps existing loops.
-It must also always require require two steps of dispatching
-(one to the ``Unit`` DType and a second one for the numerical type).
+It must also always require two steps of dispatching (one to the ``Unit``
+DType and a second one for the numerical type).
 
 Furthermore, the efficient implementation will require the ability to
 fetch and reuse the inner-loop function from another ``ArrayMethod``.
@@ -1233,7 +1233,7 @@ are the best solution:
    logic fails or is incorrect for a newly-added loop, the loop can add a
    new promoter to refine the logic.
 
-The option of having each loop verify that no upcast occured is probably
+The option of having each loop verify that no upcast occurred is probably
 the best alternative, but does not include the ability to dynamically
 adding new loops.
 
@@ -1246,7 +1246,7 @@ power and complexity carefully and responsibly.
 
 
 ***************
-User Guidelines
+User guidelines
 ***************
 
 In general adding a promoter to a UFunc must be done very carefully.
@@ -1296,7 +1296,7 @@ of the current ufunc machinery (as well as casting).
 
 The implementation unfortunately will require large maintenance of the
 UFunc machinery, since both the actual UFunc loop calls, as well as the
-the initial dispatching steps have to be modified.
+initial dispatching steps have to be modified.
 
 In general, the correct ``ArrayMethod``, also those returned by a promoter,
 will be cached (or stored) inside a hashtable for efficient lookup.

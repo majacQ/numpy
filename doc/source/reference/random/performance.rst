@@ -1,10 +1,10 @@
 Performance
------------
+===========
 
 .. currentmodule:: numpy.random
 
 Recommendation
-**************
+--------------
 
 The recommended generator for general use is `PCG64` or its upgraded variant
 `PCG64DXSM` for heavily-parallel use cases. They are statistically high quality,
@@ -13,7 +13,7 @@ full-featured, and fast on most platforms, but somewhat slow when compiled for
 parallelism would indicate using `PCG64DXSM`.
 
 `Philox` is fairly slow, but its statistical properties have
-very high quality, and it is easy to get assuredly-independent stream by using
+very high quality, and it is easy to get an assuredly-independent stream by using
 unique keys. If that is the style you wish to use for parallel streams, or you
 are porting from another system that uses that style, then
 `Philox` is your choice.
@@ -24,14 +24,14 @@ even on 32-bit processes, this is your choice.
 
 `MT19937` `fails some statistical tests`_ and is not especially
 fast compared to modern PRNGs. For these reasons, we mostly do not recommend
-using it on its own, only through the legacy `~.RandomState` for
+using it on its own, only through the legacy `RandomState` for
 reproducing old results. That said, it has a very long history as a default in
 many systems.
 
 .. _`fails some statistical tests`: https://www.iro.umontreal.ca/~lecuyer/myftp/papers/testu01.pdf
 
 Timings
-*******
+-------
 
 The timings below are the time in ns to produce 1 random value from a
 specific distribution.  The original `MT19937` generator is
@@ -85,8 +85,8 @@ performance was computed using a geometric mean.
 
    All timings were taken using Linux on an AMD Ryzen 9 3900X processor.
 
-Performance on different Operating Systems
-******************************************
+Performance on different operating systems
+------------------------------------------
 Performance differs across platforms due to compiler and hardware availability
 (e.g., register width) differences. The default bit generator has been chosen
 to perform well on 64-bit platforms.  Performance on 32-bit operating systems

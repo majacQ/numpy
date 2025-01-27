@@ -1,14 +1,16 @@
+.. _advanced_debugging:
+
 ========================
 Advanced debugging tools
 ========================
 
 If you reached here, you want to dive into, or use, more advanced tooling.
-This is usually not necessary for first time contributers and most
-day-to-day developement.
+This is usually not necessary for first time contributors and most
+day-to-day development.
 These are used more rarely, for example close to a new NumPy release,
 or when a large or particular complex change was made.
 
-Since not all of these tools are used on a regular bases and only available
+Since not all of these tools are used on a regular basis and only available
 on some systems, please expect differences, issues, or quirks;
 we will be happy to help if you get stuck and appreciate any improvements
 or suggestions to these workflows.
@@ -23,9 +25,9 @@ But for example memory leaks can be particularly subtle or difficult to
 narrow down.
 
 We do not expect any of these tools to be run by most contributors.
-However, you can ensure that we can track down such issues more easily easier:
+However, you can ensure that we can track down such issues more easily:
 
-* Tests should cover all code paths, incluing error paths.
+* Tests should cover all code paths, including error paths.
 * Try to write short and simple tests. If you have a very complicated test
   consider creating an additional simpler test as well.
   This can be helpful, because often it is only easy to find which test
@@ -39,12 +41,33 @@ and means you do not have to worry about making reference counting errors,
 which can be intimidating.
 
 
-Python debug build for finding memory leaks
-===========================================
+Python debug build
+==================
 
-Debug builds of Python are easily available for example on ``debian`` systems,
-and can be used on all platforms.
-Running a test or terminal is usually as easy as::
+Debug builds of Python are easily available for example via the system package
+manager on Linux systems, but are also available on other platforms, possibly in
+a less convenient format. If you cannot easily install a debug build of Python
+from a system package manager, you can build one yourself using `pyenv
+<https://github.com/pyenv/pyenv>`_. For example, to install and globally
+activate a debug build of Python 3.10.8, one would do::
+
+    pyenv install -g 3.10.8
+    pyenv global 3.10.8
+
+Note that ``pyenv install`` builds Python from source, so you must ensure that
+Python's dependencies are installed before building, see the pyenv documentation
+for platform-specific installation instructions. You can use ``pip`` to install
+Python dependencies you may need for your debugging session. If there is no
+debug wheel available on `pypi,` you will need to build the dependencies from
+source and ensure that your dependencies are also compiled as debug builds.
+
+Often debug builds of Python name the Python executable ``pythond`` instead of
+``python``. To check if you have a debug build of Python installed, you can run
+e.g. ``pythond -m sysconfig`` to get the build configuration for the Python
+executable. A debug build will be built with debug compiler options in
+``CFLAGS`` (e.g. ``-g -Og``).
+
+Running the Numpy tests or an interactive terminal is usually as easy as::
 
     python3.8d runtests.py
     # or
@@ -62,6 +85,8 @@ A Python debug build will help:
 
     sys.gettotalrefcount()
     sys.getallocatedblocks()
+
+- Python debug builds allow easier debugging with gdb and other C debuggers.
 
 
 Use together with ``pytest``
@@ -88,7 +113,7 @@ or ``pytest`` updates).
 
 This allows to run the test suite, or part of it, conveniently::
 
-    python3.8d runtests.py -t numpy/core/tests/test_multiarray.py -- -R2:3 -s
+    python3.8d runtests.py -t numpy/_core/tests/test_multiarray.py -- -R2:3 -s
 
 where ``-R2:3`` is the ``pytest-leaks`` command (see its documentation), the
 ``-s`` causes output to print and may be necessary (in some versions captured
@@ -106,13 +131,13 @@ Valgrind is a powerful tool to find certain memory access problems and should
 be run on complicated C code.
 Basic use of ``valgrind`` usually requires no more than::
 
-    PYTHONMALLOC=malloc python runtests.py
+    PYTHONMALLOC=malloc valgrind python runtests.py
 
 where ``PYTHONMALLOC=malloc`` is necessary to avoid false positives from python
 itself.
 Depending on the system and valgrind version, you may see more false positives.
 ``valgrind`` supports "suppressions" to ignore some of these, and Python does
-have a supression file (and even a compile time option) which may help if you
+have a suppression file (and even a compile time option) which may help if you
 find it necessary.
 
 Valgrind helps:
@@ -163,8 +188,8 @@ Use together with ``pytest``
 You can run the test suite with valgrind which may be sufficient
 when you are only interested in a few tests::
 
-    PYTHOMMALLOC=malloc valgrind python runtests.py \
-     -t numpy/core/tests/test_multiarray.py -- --continue-on-collection-errors
+    PYTHONMALLOC=malloc valgrind python runtests.py \
+     -t numpy/_core/tests/test_multiarray.py -- --continue-on-collection-errors
 
 Note the ``--continue-on-collection-errors``, which is currently necessary due to
 missing ``longdouble`` support causing failures (this will usually not be
