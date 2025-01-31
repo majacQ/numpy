@@ -1,7 +1,7 @@
 .. _reviewer-guidelines:
 
 ===================
-Reviewer Guidelines
+Reviewer guidelines
 ===================
 
 Reviewing open pull requests (PRs) helps move the project forward. We encourage
@@ -19,7 +19,7 @@ permission to merge a PR) to review.
 If we do not know you yet, consider introducing yourself in `the mailing list or
 Slack <https://numpy.org/community/>`_ before you start reviewing pull requests.
 
-Communication Guidelines
+Communication guidelines
 ========================
 
 - Every PR, good or bad, is an act of generosity. Opening with a positive
@@ -40,7 +40,7 @@ Communication Guidelines
 - If you need help writing replies in reviews, check out some
   :ref:`standard replies for reviewing<saved-replies>`.
 
-Reviewer Checklist
+Reviewer checklist
 ==================
 
 - Is the intended behavior clear under all conditions? Some things to watch:
@@ -91,8 +91,45 @@ For maintainers
   explain why. If it's not, then it's a good idea to first explain why you
   think the PR is not suitable for inclusion in NumPy and then let a second
   committer comment or close.
+- If the PR submitter doesn't respond to your comments for 6 months, move the PR 
+  in question to the inactive category with the “inactive” tag attached. 
+  At this point, the PR can be closed by a maintainer. If there is any interest 
+  in finalizing the PR under consideration, this can be indicated at any time, 
+  without waiting 6 months, by a comment.  
+- Maintainers are encouraged to finalize PRs when only small changes are
+  necessary before merging (e.g., fixing code style or grammatical errors).
+  If a PR becomes inactive, maintainers may make larger changes. 
+  Remember, a PR is a collaboration between a contributor and a reviewer/s, 
+  sometimes a direct push is the best way to finish it.
 
-GitHub Workflow
+API changes
+-----------
+As mentioned most public API changes should be discussed ahead of time and
+often with a wider audience (on the mailing list, or even through a NEP).
+
+For changes in the public C-API be aware that the NumPy C-API is backwards
+compatible so that any addition must be ABI compatible with previous versions.
+When it is not the case, you must add a guard.
+
+For example ``PyUnicodeScalarObject`` struct contains the following::
+
+    #if NPY_FEATURE_VERSION >= NPY_1_20_API_VERSION
+        char *buffer_fmt;
+    #endif
+
+Because the ``buffer_fmt`` field was added to its end in NumPy 1.20 (all
+previous fields remained ABI compatible).
+Similarly, any function added to the API table in
+``numpy/_core/code_generators/numpy_api.py`` must use the ``MinVersion``
+annotation.
+For example::
+
+    'PyDataMem_SetHandler':                 (304, MinVersion("1.22")),
+
+Header only functionality (such as a new macro) typically does not need to be
+guarded.
+
+GitHub workflow
 ---------------
 
 When reviewing pull requests, please use workflow tracking features on GitHub as
@@ -178,4 +215,3 @@ replies <https://github.com/settings/replies/>`_ for reviewing:
 
         Please do not change unrelated lines. It makes your contribution harder to review and may introduce merge conflicts to other pull requests.
 
-.. include:: gitwash/git_links.inc

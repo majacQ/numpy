@@ -1,3 +1,4 @@
+# WARNING! This a Python 2 script. Read README.rst for rationale.
 import re
 import itertools
 
@@ -9,6 +10,7 @@ def isComment(line):
     return line[0] != ' '
 def isContinuation(line):
     return line[5] != ' '
+
 
 COMMENT, STATEMENT, CONTINUATION = 0, 1, 2
 def lineType(line):
@@ -44,6 +46,8 @@ class LineIterator:
         line = line.rstrip()
         return line
 
+    next = __next__
+
 
 class PushbackIterator:
     """PushbackIterator(iterable)
@@ -68,6 +72,8 @@ class PushbackIterator:
 
     def pushback(self, item):
         self.buffer.append(item)
+
+    next = __next__
 
 
 def fortranSourceLines(fo):
@@ -110,7 +116,7 @@ def getDependencies(filename):
         for lineno, line in fortranSourceLines(fo):
             m = external_pat.match(line)
             if m:
-                names = line = line[m.end():].strip().split(',')
+                names = line[m.end():].strip().split(',')
                 names = [n.strip().lower() for n in names]
                 names = [n for n in names if n]
                 routines.extend(names)
