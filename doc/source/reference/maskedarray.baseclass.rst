@@ -1,9 +1,5 @@
 .. currentmodule:: numpy.ma
 
-.. for doctests
-   >>> import numpy as np
-   >>> from numpy import ma
-
 .. _numpy.ma.constants:
 
 Constants of the :mod:`numpy.ma` module
@@ -19,10 +15,14 @@ defines several constants.
    specific entry of a masked array is masked, or to mask one or several
    entries of a masked array::
 
-      >>> x = ma.array([1, 2, 3], mask=[0, 1, 0])
-      >>> x[1] is ma.masked
+   .. try_examples::
+
+      >>> import numpy as np
+
+      >>> x = np.ma.array([1, 2, 3], mask=[0, 1, 0])
+      >>> x[1] is np.ma.masked
       True
-      >>> x[-1] = ma.masked
+      >>> x[-1] = np.ma.masked
       >>> x
       masked_array(data=[1, --, --],
                    mask=[False,  True,  True],
@@ -36,13 +36,14 @@ defines several constants.
    is not needed. It is represented internally as ``np.False_``.
 
 
-.. data:: masked_print_options
+.. data:: masked_print_option
 
    String used in lieu of missing data when a masked array is printed.
    By default, this string is ``'--'``.
 
-
-
+   Use ``set_display()`` to change the default string.
+   Example usage: ``numpy.ma.masked_print_option.set_display('X')`` 
+   replaces missing data with ``'X'``.
 
 .. _maskedarray.baseclass:
 
@@ -72,19 +73,19 @@ Attributes and properties of masked arrays
 
 .. seealso:: :ref:`Array Attributes <arrays.ndarray.attributes>`
 
-.. autoattribute:: MaskedArray.data
+.. autoattribute:: numpy::ma.MaskedArray.data
 
-.. autoattribute:: MaskedArray.mask
+.. autoattribute:: numpy::ma.MaskedArray.mask
 
-.. autoattribute:: MaskedArray.recordmask
+.. autoattribute:: numpy::ma.MaskedArray.recordmask
 
-.. autoattribute:: MaskedArray.fill_value
+.. autoattribute:: numpy::ma.MaskedArray.fill_value
 
-.. autoattribute:: MaskedArray.baseclass
+.. autoattribute:: numpy::ma.MaskedArray.baseclass
 
-.. autoattribute:: MaskedArray.sharedmask
+.. autoattribute:: numpy::ma.MaskedArray.sharedmask
 
-.. autoattribute:: MaskedArray.hardmask
+.. autoattribute:: numpy::ma.MaskedArray.hardmask
 
 As :class:`MaskedArray` is a subclass of :class:`~numpy.ndarray`, a masked array also inherits all the attributes and properties of a  :class:`~numpy.ndarray` instance.
 
@@ -136,7 +137,6 @@ Conversion
    MaskedArray.toflex
    MaskedArray.tolist
    MaskedArray.torecords
-   MaskedArray.tostring
    MaskedArray.tobytes
 
 

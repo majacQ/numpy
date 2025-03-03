@@ -111,7 +111,7 @@ Defining functions
 ==================
 
 The second argument passed in to the Py_InitModule function is a
-structure that makes it easy to to define functions in the module. In
+structure that makes it easy to define functions in the module. In
 the example given above, the mymethods structure would have been
 defined earlier in the file (usually right before the init{name}
 subroutine) to:
@@ -327,12 +327,12 @@ The method is to
    byte-order and single-segment) of the correct type and number of
    dimensions.
 
-    1. By converting it from some Python object using
-       :c:func:`PyArray_FromAny` or a macro built on it.
+   1. By converting it from some Python object using
+      :c:func:`PyArray_FromAny` or a macro built on it.
 
-    2. By constructing a new ndarray of your desired shape and type
-       using :c:func:`PyArray_NewFromDescr` or a simpler macro or function
-       based on it.
+   2. By constructing a new ndarray of your desired shape and type
+      using :c:func:`PyArray_NewFromDescr` or a simpler macro or function
+      based on it.
 
 
 2. Get the shape of the array and a pointer to its actual data.
@@ -433,13 +433,13 @@ writeable). The syntax is
 
         The requirements flag allows specification of what kind of
         array is acceptable. If the object passed in does not satisfy
-        this requirements then a copy is made so that thre returned
+        this requirements then a copy is made so that the returned
         object will satisfy the requirements. these ndarray can use a
         very generic pointer to memory.  This flag allows specification
         of the desired properties of the returned array object. All
         of the flags are explained in the detailed API chapter. The
         flags most commonly needed are :c:data:`NPY_ARRAY_IN_ARRAY`,
-        :c:data:`NPY_OUT_ARRAY`, and :c:data:`NPY_ARRAY_INOUT_ARRAY`:
+        :c:data:`NPY_ARRAY_OUT_ARRAY`, and :c:data:`NPY_ARRAY_INOUT_ARRAY`:
 
         :c:data:`NPY_ARRAY_IN_ARRAY`
             This flag is useful for arrays that must be in C-contiguous
@@ -459,9 +459,8 @@ writeable). The syntax is
             must be called before :c:func:`Py_DECREF` at
             the end of the interface routine to write back the temporary data
             into the original array passed in. Use
-            of the :c:data:`NPY_ARRAY_WRITEBACKIFCOPY` or
-            :c:data:`NPY_ARRAY_UPDATEIFCOPY` flags requires that the input
-            object is already an array (because other objects cannot
+            of the :c:data:`NPY_ARRAY_WRITEBACKIFCOPY` flag requires that the
+            input object is already an array (because other objects cannot
             be automatically updated in this fashion). If an error
             occurs use :c:func:`PyArray_DiscardWritebackIfCopy` (obj) on an
             array with these flags set. This will set the underlying base array

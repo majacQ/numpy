@@ -5,7 +5,7 @@ NEP 23 — Backwards compatibility and deprecation policy
 =======================================================
 
 :Author: Ralf Gommers <ralf.gommers@gmail.com>
-:Status: Final
+:Status: Active
 :Type: Process
 :Created: 2018-07-14
 :Resolution: https://mail.python.org/pipermail/numpy-discussion/2021-January/081423.html
@@ -20,7 +20,7 @@ processes for individual cases where breaking backwards compatibility
 is considered.
 
 
-Motivation and Scope
+Motivation and scope
 --------------------
 
 NumPy has a very large user base.  Those users rely on NumPy being stable
@@ -224,8 +224,7 @@ Functionality with more strict deprecation policies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``numpy.random`` has its own backwards compatibility policy with additional
-  requirements on top of the ones in this NEP, see
-  `NEP 19 <http://www.numpy.org/neps/nep-0019-rng-policy.html>`_.
+  requirements on top of the ones in this NEP, see :doc:`nep-0019-rng-policy`.
 - The file format of ``.npy`` and ``.npz`` files is strictly versioned
   independent of the NumPy version; existing format versions must remain
   backwards compatible even if a newer format version is introduced.
@@ -327,10 +326,10 @@ Discussion
 
 - `Mailing list discussion on the first version of this NEP in 2018 <https://mail.python.org/pipermail/numpy-discussion/2018-July/078432.html>`__
 - `Mailing list discussion on the Dec 2020 update of this NEP <https://mail.python.org/pipermail/numpy-discussion/2020-December/081358.html>`__
-- `PR with review comments on the the Dec 2020 update of this NEP <https://github.com/numpy/numpy/pull/18097>`__
+- `PR with review comments on the Dec 2020 update of this NEP <https://github.com/numpy/numpy/pull/18097>`__
 
 
-References and Footnotes
+References and footnotes
 ------------------------
 
 - `Issue requesting semantic versioning <https://github.com/numpy/numpy/issues/10156>`__
